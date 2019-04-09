@@ -22,13 +22,14 @@ public class ChatCommand : MonoBehaviour
     private float reconnectTimer;
     private float goldWatchingTimer;
     private float mapSpawnTimer = 30f;
-
-    private List<string> notification = new List<string>();
+    
     LoadViewerList ViewerList = new LoadViewerList();
     SaveJson saveJson = new SaveJson();
+    CombatSystem cs = new CombatSystem();
 
     void Start()
     {
+        cs = GameObject.Find("Battle Info").GetComponent<CombatSystem>();
         //Connect();
         gameObject.AddComponent<LoadViewerList>();
 
@@ -100,12 +101,12 @@ public class ChatCommand : MonoBehaviour
                         SendTwitchMessage(String.Format("{0} has leveled up!", c.username));
                     }
 
-                    if (c.pvpDuelTimer <= 0)
+                    /*if (c.pvpDuelTimer <= 0)
                     {
                         GameData.character[GetCharacterIndex(c.username)].pvpDuelTimer = 0;
                         GameData.character[GetCharacterIndex(c.username)].pvpDuel[0] = "";
                         GameData.character[GetCharacterIndex(c.username)].pvpDuel[1] = "0";
-                    }
+                    }*/
                 }
             }
 
@@ -129,7 +130,7 @@ public class ChatCommand : MonoBehaviour
 
             if (GameData.mapTimer <= 0 && GameData.characterJoined.Count > 0)
             {
-                GameData.mapTimer = 6f;
+                GameData.mapTimer = 15f;
 
                 if (GameData.voteNorth != null && GameData.voteEast != null && GameData.voteSouth != null && GameData.voteWest != null)
                 {
@@ -343,7 +344,7 @@ public class ChatCommand : MonoBehaviour
     {
         CreateNewCharacter(chatName, message);
 
-        if (IsCharacterExist(chatName))
+        if (IsCharacterExist(chatName) && !cs.isFighting)
         {
             Inspect(chatName, message);
             Inventory(chatName, message);
@@ -388,7 +389,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Inspect(string username, string message)
     {
-        if (message.ToLower() == "!inspect")
+        if (message.ToLower() == "!inspect" || message.ToLower() == "ins")
         {
             Character c = GameData.character[GetCharacterIndex(username)];
             if (c.antiSpamTimer <= 0f)
@@ -399,7 +400,7 @@ public class ChatCommand : MonoBehaviour
         }
         else
         {
-            if (message.ToLower().Split(' ')[0] == "!inspect" && message.Split(' ').Length == 2)
+            if ((message.ToLower().Split(' ')[0] == "!inspect" || message.ToLower() == "ins") && message.Split(' ').Length == 2)
             {
                 Character c = GameData.character[GetCharacterIndex(username)];
                 Character t = GameData.character[GetCharacterIndex(message.ToLower().Split(' ')[1].Replace("@", ""))];
@@ -418,7 +419,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Inventory(string username, string message)
     {
-        if (message.ToLower() == "!inventory")
+        if (message.ToLower() == "!inventory" || message.ToLower() == "inv")
         {
             Character c = GameData.character[GetCharacterIndex(username)];
             if (c.antiSpamTimer <= 0f)
@@ -429,7 +430,7 @@ public class ChatCommand : MonoBehaviour
         }
         else
         {
-            if (message.ToLower().Split(' ')[0] == "!inventory" && message.Split(' ').Length == 2)
+            if ((message.ToLower().Split(' ')[0] == "!inventory" || message.ToLower() == "inv") && message.Split(' ').Length == 2)
             {
                 Character c = GameData.character[GetCharacterIndex(username)];
                 Character t = GameData.character[GetCharacterIndex(message.ToLower().Split(' ')[1].Replace("@", ""))];
@@ -462,7 +463,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Donate(string username, string message)
     {
-        if (message.ToLower().Split(' ')[0] == "!donate" && message.ToLower().Split(' ')[1].Replace("@", "") != username && message.Split(' ').Length == 3)
+        if ((message.ToLower().Split(' ')[0] == "!donate" || message.ToLower().Split(' ')[0] == "!don") && message.ToLower().Split(' ')[1].Replace("@", "") != username && message.Split(' ').Length == 3)
         {
             int to = -1;
             int from = -1;
@@ -845,7 +846,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Knight(string username, string message)
     {
-        if (message.ToLower() == "!knight" && message.Split(' ').Length == 1)
+        if ((message.ToLower() == "!knight" || message.ToLower() == "!chevalier") && message.Split(' ').Length == 1)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
 
@@ -860,7 +861,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Warrior(string username, string message)
     {
-        if (message.ToLower() == "!warrior" && message.Split(' ').Length == 1)
+        if ((message.ToLower() == "!warrior" || message.ToLower() == "!guerrier") && message.Split(' ').Length == 1)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
 
@@ -875,7 +876,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Thief(string username, string message)
     {
-        if (message.ToLower() == "!thief" && message.Split(' ').Length == 1)
+        if ((message.ToLower() == "!thief" || message.ToLower() == "!voleur") && message.Split(' ').Length == 1)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
 
@@ -905,7 +906,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Wizard(string username, string message)
     {
-        if (message.ToLower() == "!wizard" && message.Split(' ').Length == 1)
+        if ((message.ToLower() == "!wizard" || message.ToLower() == "!magician") && message.Split(' ').Length == 1)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
 
@@ -920,7 +921,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Priest(string username, string message)
     {
-        if (message.ToLower() == "!priest" && message.Split(' ').Length == 1)
+        if ((message.ToLower() == "!priest" || message.ToLower() == "!prêtre") && message.Split(' ').Length == 1)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
 
@@ -1061,6 +1062,7 @@ public class ChatCommand : MonoBehaviour
                 switch (slot)
                 {
                     case "mainhand":
+                    case "mh":
                         currentItemValue = GetMainHandPowerValue(c);
                         craftedItemValue = (int)((float)tier * (5 + (tier - 1)) * GetRarityMultiplier(rarity));
                         if (craftedItemValue > currentItemValue)
@@ -1072,6 +1074,7 @@ public class ChatCommand : MonoBehaviour
                         }
                         break;
                     case "offhand":
+                    case "oh":
                         currentItemValue = GetOffHandPowerValue(c);
                         switch (c.role)
                         {
