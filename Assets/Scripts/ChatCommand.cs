@@ -130,7 +130,7 @@ public class ChatCommand : MonoBehaviour
 
             if (GameData.mapTimer <= 0 && GameData.characterJoined.Count > 0)
             {
-                GameData.characterJoined.Add(GameData.character[GetCharacterIndex(channelName)]);
+                //GameData.characterJoined.Add(GameData.character[GetCharacterIndex(channelName)]);
                 GameData.mapTimer = 600f;
 
                 if (GameData.voteNorth != null && GameData.voteEast != null && GameData.voteSouth != null && GameData.voteWest != null)
@@ -347,8 +347,7 @@ public class ChatCommand : MonoBehaviour
 
         if (IsCharacterExist(chatName) && !cs.isFighting)
         {
-            Inspect(chatName, message);
-            Inventory(chatName, message);
+            Stats(chatName, message);
             Donate(chatName, message);
             Train(chatName, message);
             Join(chatName, message);
@@ -388,20 +387,21 @@ public class ChatCommand : MonoBehaviour
         }
     }
 
-    private void Inspect(string username, string message)
+    private void Stats(string username, string message)
     {
-        if (message.ToLower() == "!inspect" || message.ToLower() == "ins")
+        if (message.ToLower() == "!stats")
         {
             Character c = GameData.character[GetCharacterIndex(username)];
             if (c.antiSpamTimer <= 0f)
             {
                 SendTwitchMessage(GetInspectText(c));
+                SendTwitchMessage(GetInventoryText(c));
                 c.antiSpamTimer = GameData.spamTimer;
             }
         }
         else
         {
-            if ((message.ToLower().Split(' ')[0] == "!inspect" || message.ToLower() == "ins") && message.Split(' ').Length == 2)
+            if (message.ToLower().Split(' ')[0] == "!stats" && message.Split(' ').Length == 2)
             {
                 Character c = GameData.character[GetCharacterIndex(username)];
                 Character t = GameData.character[GetCharacterIndex(message.ToLower().Split(' ')[1].Replace("@", ""))];
@@ -412,35 +412,6 @@ public class ChatCommand : MonoBehaviour
                     {
                         c.antiSpamTimer = GameData.spamTimer;
                         SendTwitchMessage(GetInspectText(t));
-                    }
-                }
-            }
-        }
-    }
-
-    private void Inventory(string username, string message)
-    {
-        if (message.ToLower() == "!inventory" || message.ToLower() == "inv")
-        {
-            Character c = GameData.character[GetCharacterIndex(username)];
-            if (c.antiSpamTimer <= 0f)
-            {
-                SendTwitchMessage(GetInventoryText(c));
-                c.antiSpamTimer = GameData.spamTimer;
-            }
-        }
-        else
-        {
-            if ((message.ToLower().Split(' ')[0] == "!inventory" || message.ToLower() == "inv") && message.Split(' ').Length == 2)
-            {
-                Character c = GameData.character[GetCharacterIndex(username)];
-                Character t = GameData.character[GetCharacterIndex(message.ToLower().Split(' ')[1].Replace("@", ""))];
-
-                if (c.antiSpamTimer <= 0f)
-                {
-                    if (t.username != "")
-                    {
-                        c.antiSpamTimer = GameData.spamTimer;
                         SendTwitchMessage(GetInventoryText(t));
                     }
                 }
@@ -816,6 +787,7 @@ public class ChatCommand : MonoBehaviour
                 saveJson.AddNewCharacterToJson();
 
                 SendTwitchMessage(String.Format("{0} just joined Avaron's realm, welcome!", username));
+                SendTwitchMessage(String.Format("/w {0} Welcome, you can change your class -> !knight, !warrior, !thief, !archer, !wizard and !priest.", username));
                 Save();
             }
         }
@@ -839,6 +811,7 @@ public class ChatCommand : MonoBehaviour
                     }
                     saveJson.AddNewCharacterToJson();
                     SendTwitchMessage(String.Format("{0} just joined Avaron's realm, welcome!", username));
+                    SendTwitchMessage(String.Format("/w {0} Welcome, you can change your class -> !knight, !warrior, !thief, !archer, !wizard and !priest.", username));
                     Save();
                 }
             }
@@ -1032,9 +1005,19 @@ public class ChatCommand : MonoBehaviour
         }
     }
 
+    public void DropGear(string username)
+    {
+        int rng = UnityEngine.Random.Range(0, 1);
+
+        if (rng < 2)
+        {
+            Craft(username, "#freecraft head");
+        }
+    }
+
     private void Craft(string username, string message)
     {
-        if (message.ToLower().Split(' ')[0] == "!craft" && message.Split(' ').Length == 2)
+        if ((message.ToLower().Split(' ')[0] == "!craft" || message.ToLower().Split(' ')[0] == "#freecraft") && message.Split(' ').Length == 2)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
             string slot = message.ToLower().Split(' ')[1];
@@ -1045,6 +1028,10 @@ public class ChatCommand : MonoBehaviour
                 tier = 10;
             }
             int cost = 1000 * tier;
+            if (message.ToLower().Split(' ')[0] == "#freecraft")
+            {
+                cost = 0;
+            }
 
             int rng = UnityEngine.Random.Range(1, 100);
             string rarity = GetRarityFromRandom(rng);
@@ -1059,13 +1046,21 @@ public class ChatCommand : MonoBehaviour
                 {
                     c.legendaryCount++;
                 }
-                string botMessage = String.Format("{0} crafted a {1} {2} tier {3} for {4} gold and has {5} gold left.", username, rarity, GetMainHandName(c.role), tier, cost, c.gold);
+                string botMessage = String.Format("{0} crafted a {1}", username, rarity);
+                if (message.ToLower().Split(' ')[0] == "#freecraft")
+                {
+                    botMessage = String.Format("{0} looted a {1}", username, rarity);
+                }
                 switch (slot)
                 {
                     case "mainhand":
                     case "mh":
                         currentItemValue = GetMainHandPowerValue(c);
                         craftedItemValue = (int)((float)tier * (5 + (tier - 1)) * GetRarityMultiplier(rarity));
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage += String.Format(" {0} tier {1}.", GetMainHandName(c.role), tier);
+                        else
+                            botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetMainHandName(c.role), tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue)
                         {
                             c.mainHandSlot[0] = rarity;
@@ -1091,6 +1086,10 @@ public class ChatCommand : MonoBehaviour
                                 craftedItemValue = (int)((float)tier * (10 + (tier - 1)) * GetRarityMultiplier(rarity));
                                 break;
                         }
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage += String.Format(" {0} tier {1}.", GetOffHandName(c.role), tier);
+                        else
+                            botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetOffHandName(c.role), tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue)
                         {
                             c.offHandSlot[0] = rarity;
@@ -1102,6 +1101,10 @@ public class ChatCommand : MonoBehaviour
                     case "head":
                         currentItemValue = GetHeadPowerValue(c);
                         craftedItemValue = (int)((float)tier * (48 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage += String.Format(" {0} tier {1}.", GetHeadName(c.role), tier);
+                        else
+                            botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetHeadName(c.role), tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue)
                         {
                             c.headSlot[0] = rarity;
@@ -1113,6 +1116,10 @@ public class ChatCommand : MonoBehaviour
                     case "chest":
                         currentItemValue = GetChestPowerValue(c);
                         craftedItemValue = (int)((float)tier * (48 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage = String.Format(" {0} tier {1}.", GetChestName(c.role), tier);
+                        else
+                            botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetChestName(c.role), tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue)
                         {
                             c.chestSlot[0] = rarity;
@@ -1124,6 +1131,10 @@ public class ChatCommand : MonoBehaviour
                     case "mantle":
                         currentItemValue = GetMantlePowerValue(c);
                         craftedItemValue = (int)((float)tier * (13 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage = String.Format(" {0} tier Mantle.", tier);
+                        else
+                            botMessage += String.Format(" Mantle tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue || c.accessorySlot[3].ToLower() != slot)
                         {
                             c.accessorySlot[0] = rarity;
@@ -1136,6 +1147,10 @@ public class ChatCommand : MonoBehaviour
                     case "amulet":
                         currentItemValue = GetAmuletPowerValue(c);
                         craftedItemValue = (int)((float)tier * (38 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage += String.Format(" {0} tier Amulet.", tier);
+                        else
+                            botMessage += String.Format(" Amulet tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue || c.accessorySlot[3].ToLower() != slot)
                         {
                             c.accessorySlot[0] = rarity;
@@ -1148,6 +1163,10 @@ public class ChatCommand : MonoBehaviour
                     case "ring":
                         currentItemValue = GetRingPowerValue(c);
                         craftedItemValue = (int)((float)tier * (13 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage += String.Format(" {0} tier Mantle.", tier);
+                        else
+                            botMessage += String.Format(" Ring tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue || c.accessorySlot[3].ToLower() != slot)
                         {
                             c.accessorySlot[0] = rarity;
@@ -1160,6 +1179,10 @@ public class ChatCommand : MonoBehaviour
                     case "belt":
                         currentItemValue = GetBeltPowerValue(c);
                         craftedItemValue = (int)((float)tier * (1 + (tier - 1)) * GetRarityMultiplier(rarity));
+                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                            botMessage += String.Format(" {0} tier Belt.", tier);
+                        else
+                            botMessage += String.Format(" Belt tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);
                         if (craftedItemValue > currentItemValue || c.accessorySlot[3].ToLower() != slot)
                         {
                             c.accessorySlot[0] = rarity;
@@ -1182,7 +1205,7 @@ public class ChatCommand : MonoBehaviour
             }
             else
             {
-                SendTwitchMessage(String.Format("/w {0} WARNING: You don't have enough gold to craft ({1}/{2}).", c.username, cost, c.gold));
+                SendTwitchMessage(String.Format("/w {0} WARNING: You don't have enough gold to craft ({2}/{1}).", c.username, cost, c.gold));
             }
         }
     }
@@ -1272,7 +1295,7 @@ public class ChatCommand : MonoBehaviour
                 }
                 else
                 {
-                    SendTwitchMessage(String.Format("/w {0} WARNING: You don't have enough Streamstone ({1}/{2}).", c.username, streamstoneCost, c.streamstone));
+                    SendTwitchMessage(String.Format("/w {0} WARNING: You don't have enough Streamstone ({2}/{1}).", c.username, streamstoneCost, c.streamstone));
                 }
             }
             else
