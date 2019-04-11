@@ -17,7 +17,7 @@ public class ChatCommand : MonoBehaviour
     private StreamWriter writer;
     private StreamWriter writerBot;
     private string username = "", password = "", channelName = ""; //Get the password from http://twitchapps.com/tmi
-    private string botUsername = "toleksar", botPassword = "oauth:hoqsxxbjdon84kzu5mfyna44mb3e6y";
+    private string botUsername = "bot_rpg", botPassword = "oauth:lc3hiheve28tlqgx8taqjnfen380mf";
 
     private float reconnectTimer;
     private float goldWatchingTimer;
@@ -130,7 +130,8 @@ public class ChatCommand : MonoBehaviour
 
             if (GameData.mapTimer <= 0 && GameData.characterJoined.Count > 0)
             {
-                GameData.mapTimer = 15f;
+                GameData.characterJoined.Add(GameData.character[GetCharacterIndex(channelName)]);
+                GameData.mapTimer = 600f;
 
                 if (GameData.voteNorth != null && GameData.voteEast != null && GameData.voteSouth != null && GameData.voteWest != null)
                 {
@@ -487,16 +488,15 @@ public class ChatCommand : MonoBehaviour
 
     private void Train(string username, string message)
     {
-        if (message.ToLower() == "!train" && message.Split(' ').Length == 1)
+        if ((message.ToLower() == "!train" || message.ToLower() == "!afk") && message.Split(' ').Length == 1)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
-
-            //TODO: if (NotInEvent)
+            
             if (!c.isTraining)
             {
                 c.isTraining = true;
                 c.trainingTimer = GameData.trainingTick;
-                SendTwitchMessage(String.Format("{0} is training, earning {1} exp every {2} minutes, but cannot join any event.", c.username, GameData.trainingExperience, GameData.trainingTick / 60));
+                SendTwitchMessage(String.Format("/w {0} You are training, earning {1} exp every {2} minutes, but cannot join any event.", c.username, GameData.trainingExperience, GameData.trainingTick / 60));
                 foreach (Character character in GameData.characterJoined)
                 {
                     if (character.username == c.username)
@@ -508,7 +508,7 @@ public class ChatCommand : MonoBehaviour
             else
             {
                 c.isTraining = false;
-                SendTwitchMessage(String.Format("{0} is no longer training.", c.username));
+                SendTwitchMessage(String.Format("/w {0} You are no longer training.", c.username));
             }
         }
     }
@@ -521,7 +521,7 @@ public class ChatCommand : MonoBehaviour
             if (c.antiSpamTimer <= 0)
             {
                 c.antiSpamTimer = GameData.spamTimer;
-                SendTwitchMessage("List of classes -> !knight, !warrior, !thief, !archer, !wizard and !priest.");
+                SendTwitchMessage(String.Format("/w {0} List of classes -> !knight, !warrior, !thief, !archer, !wizard and !priest.", c.username));
             }
         }
     }
@@ -673,7 +673,7 @@ public class ChatCommand : MonoBehaviour
                 break;
         }
         string prestige = c.prestige > 0 ? " " + (c.prestige > 1 ? c.prestige.ToString() + "*" : " *") : "";
-        return string.Format("{0}{1} {13}, Lvl: {2} {3} has {4} HP, {5} Power, {6} ({7}%) Critical, {8} ({9}%) Evasion, {10} Gold, {11} Streamstone and {12}% experiences.",
+        return string.Format("/w {0} {0}{1} {13}, Lvl: {2} {3} has {4} HP, {5} Power, {6} ({7}%) Critical, {8} ({9}%) Evasion, {10} Gold, {11} Streamstone and {12}% experiences.",
                             c.username, prestige, c.level, c.role, totalHP, totalPower, totalCritical, GetPercentStats(totalCritical).ToString(), totalEvasion, GetPercentStats(totalEvasion).ToString(), c.gold, c.streamstone, c.experience, c.nickname);
     }
 
@@ -715,7 +715,7 @@ public class ChatCommand : MonoBehaviour
                 break;
         }
 
-        return string.Format("{0}{1} {28}, has {2} {3}{4} tier {5} Power: {6}, {7} {8}{9} tier {10} {11}, {12} {13}{14} tier {15} HP: {16}, {17} {18}{19} tier {20} HP: {21}, {22} {23}{24} tier {25}.",
+        return string.Format("/w {0} {0}{1} {28}, has {2} {3}{4} tier {5} Power: {6}, {7} {8}{9} tier {10} {11}, {12} {13}{14} tier {15} HP: {16}, {17} {18}{19} tier {20} HP: {21}, {22} {23}{24} tier {25}.",
                             c.username, c.prestige > 0 ? " *" : "", c.mainHandSlot[0], GetMainHandName(c.role), Convert.ToInt32(c.mainHandSlot[2]) > 0 ? " (+" + c.mainHandSlot[2] + ")" : "", c.mainHandSlot[1], GetMainHandPowerValue(c),
                             c.offHandSlot[0], GetOffHandName(c.role), Convert.ToInt32(c.offHandSlot[2]) > 0 ? " (+" + c.offHandSlot[2] + ")" : "", c.offHandSlot[1], offHandValue,
                             c.headSlot[0], GetHeadName(c.role), Convert.ToInt32(c.headSlot[2]) > 0 ? " (+" + c.headSlot[2] + ")" : "", c.headSlot[1], GetHeadPowerValue(c),
@@ -800,7 +800,7 @@ public class ChatCommand : MonoBehaviour
         {
             Character c = GameData.character[GetCharacterIndex(username)];
             c.nickname = "(" + message.Split(' ')[1] + ")";
-            SendTwitchMessage(String.Format("{0} changed his Nickname to {1}.", c.username, message.Split(' ')[1]));
+            SendTwitchMessage(String.Format("/w {0} Your nickname has changed to {1}.", c.username, message.Split(' ')[1]));
         }
     }
 
@@ -815,7 +815,7 @@ public class ChatCommand : MonoBehaviour
                 GameData.character.Add(addCharacter.InitNewCharacter(username, GameData.character.Count, "Warrior"));
                 saveJson.AddNewCharacterToJson();
 
-                SendTwitchMessage(String.Format("Welcome {0}!", username));
+                SendTwitchMessage(String.Format("{0} just joined Avaron's realm, welcome!", username));
                 Save();
             }
         }
@@ -838,7 +838,8 @@ public class ChatCommand : MonoBehaviour
                         GameData.character.Add(addCharacter.InitNewCharacter(username, GameData.character.Count, "Warrior"));
                     }
                     saveJson.AddNewCharacterToJson();
-                    SendTwitchMessage(String.Format("{0} just joined Avalon's realm, welcome!", username));
+                    SendTwitchMessage(String.Format("{0} just joined Avaron's realm, welcome!", username));
+                    Save();
                 }
             }
         }
@@ -854,7 +855,7 @@ public class ChatCommand : MonoBehaviour
             {
                 c.role = "Knight";
                 c.antiSpamTimer = GameData.spamTimer;
-                SendTwitchMessage(String.Format("{0} is now a Knight!", username));
+                SendTwitchMessage(String.Format("/w {0} You are now a Knight!", username));
             }
         }
     }
@@ -869,7 +870,7 @@ public class ChatCommand : MonoBehaviour
             {
                 c.role = "Warrior";
                 c.antiSpamTimer = GameData.spamTimer;
-                SendTwitchMessage(String.Format("{0} is now a Warrior!", username));
+                SendTwitchMessage(String.Format("/w {0} You are now a Warrior!", username));
             }
         }
     }
@@ -884,7 +885,7 @@ public class ChatCommand : MonoBehaviour
             {
                 c.role = "Thief";
                 c.antiSpamTimer = GameData.spamTimer;
-                SendTwitchMessage(String.Format("{0} is now a Thief!", username));
+                SendTwitchMessage(String.Format("/w {0} You are now a Thief!", username));
             }
         }
     }
@@ -899,7 +900,7 @@ public class ChatCommand : MonoBehaviour
             {
                 c.role = "Archer";
                 c.antiSpamTimer = GameData.spamTimer;
-                SendTwitchMessage(String.Format("{0} is now a Archer!", username));
+                SendTwitchMessage(String.Format("/w {0} You are now an Archer!", username));
             }
         }
     }
@@ -914,7 +915,7 @@ public class ChatCommand : MonoBehaviour
             {
                 c.role = "Wizard";
                 c.antiSpamTimer = GameData.spamTimer;
-                SendTwitchMessage(String.Format("{0} is now a Wizard!", username));
+                SendTwitchMessage(String.Format("/w {0} You are now a Wizard! ...Harry", username));
             }
         }
     }
@@ -929,7 +930,7 @@ public class ChatCommand : MonoBehaviour
             {
                 c.role = "Priest";
                 c.antiSpamTimer = GameData.spamTimer;
-                SendTwitchMessage(String.Format("{0} is now a Priest!", username));
+                SendTwitchMessage(String.Format("/w {0} You are now a Priest!", username));
             }
         }
     }
@@ -1169,13 +1170,19 @@ public class ChatCommand : MonoBehaviour
                         }
                         break;
                     default:
+                        SendTwitchMessage(String.Format("/w {0} WARNING: This equipment doesn't exist. !craft mainhand|offhand|head|chest|mantle|ring|amulet|belt.", c.username, cost, c.gold));
                         break;
                 }
 
                 if (botMessage != "")
                 {
                     SendTwitchMessage(botMessage);
+                    SendTwitchMessage("/w " + botMessage);
                 }
+            }
+            else
+            {
+                SendTwitchMessage(String.Format("/w {0} WARNING: You don't have enough gold to craft ({1}/{2}).", c.username, cost, c.gold));
             }
         }
     }
@@ -1193,11 +1200,11 @@ public class ChatCommand : MonoBehaviour
                     if (!c.isTraining)
                     {
                         GameData.characterJoined.Add(c);
-                        SendTwitchMessage(String.Format("{0} join the army.", c.username));
+                        SendTwitchMessage(String.Format("/w {0} You just joined the next event.", c.username));
                     }
                     else
                     {
-                        SendTwitchMessage(String.Format("{0} is currently training and cannot join the event.", c.username));
+                        SendTwitchMessage(String.Format("/w {0} WARNING: You are currently training and cannot join the event.", c.username));
                     }
                 }
             }
@@ -1263,6 +1270,14 @@ public class ChatCommand : MonoBehaviour
                         SendTwitchMessage(String.Format("{0}'s {1} failed to forge.", username, slot));
                     }
                 }
+                else
+                {
+                    SendTwitchMessage(String.Format("/w {0} WARNING: You don't have enough Streamstone ({1}/{2}).", c.username, streamstoneCost, c.streamstone));
+                }
+            }
+            else
+            {
+                SendTwitchMessage(String.Format("/w {0} WARNING: This equipment is already maxed out at +5.", c.username));
             }
         }
     }

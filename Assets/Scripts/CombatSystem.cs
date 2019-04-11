@@ -56,7 +56,7 @@ public class CombatSystem : MonoBehaviour
                                     damageDealt = (int)(c.stats.power * 1.5);
                                     if (GameData.isCombatDebug)
                                     {
-                                        cc.SendTwitchMessage(String.Format("{0} critical hit for {1}!", c.username, damageDealt.ToString()));
+                                        cc.SendTwitchMessage(String.Format("/w {0} You critical strike for {1} at turn {2}!", c.username, damageDealt.ToString(), combatTurn));
                                     }
                                 }
                                 else
@@ -143,7 +143,7 @@ public class CombatSystem : MonoBehaviour
                             int evadeRNG = UnityEngine.Random.Range(1, 10000);
                             if (evadeRNG <= tanks[selectRandomTank].stats.evasion)
                             {
-                                cc.SendTwitchMessage(String.Format("{0} evaded!", tanks[selectRandomTank].username));
+                                cc.SendTwitchMessage(String.Format("/w {0} You evaded at turn {1}!", tanks[selectRandomTank].username, combatTurn));
                             }
                             else
                             {
@@ -292,7 +292,11 @@ public class CombatSystem : MonoBehaviour
                 c.pveDefeat++;
             }
             isFighting = false;
-            cc.SendTwitchMessage(String.Format("Defeat in {0} (X:{1}, Y:{2})!", GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y], (int)GameData.mapPosition.x, (int)GameData.mapPosition.y));
+            foreach (Character c in GameData.characterJoined)
+            {
+                cc.SendTwitchMessage(String.Format("/w {3} Defeat in {0} (X:{1}, Y:{2})! You dealt {3} ({4})% damage.", 
+                    GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y], (int)GameData.mapPosition.x, (int)GameData.mapPosition.y, c.username, c.damageDealt, (c.damageDealt / boss.maxHP) * 100));
+            }
             GameData.showCombatFrame = false;
             GameData.showDpsMeter = false;
             GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y] = MapEvent.Failure;
@@ -315,9 +319,10 @@ public class CombatSystem : MonoBehaviour
                 c.streamstone += boss.streamstone;
                 c.streamstoneReceived += boss.streamstone;
                 c.pveVictory++;
+                cc.SendTwitchMessage(String.Format("/w {3} Victory! You earn {0} gold, {1}% experience and {2} streamstone. You dealt {3} ({4})% damage.", 
+                    boss.gold, boss.experience * (GetAverageLevel() / c.level), boss.streamstone, c.username, c.damageDealt, (c.damageDealt / boss.maxHP) * 100));
             }
             isFighting = false;
-            cc.SendTwitchMessage(String.Format("Victory! The party earn {0} gold, ~{1}% experience and {2} streamstone.", boss.gold, boss.experience, boss.streamstone));
             GameData.showCombatFrame = false;
             GameData.showDpsMeter = false;
             GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y] = MapEvent.Success;

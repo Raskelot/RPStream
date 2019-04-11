@@ -97,7 +97,7 @@ public class UI : MonoBehaviour
 
         ShowCompass();
 
-        if (GameData.mapTimer / 60 < 1)
+        if (GameData.mapTimer / 120 < 1)
         {
             if ((GameData.mapTimer % 60) % 1 >= 0.5f)
             {

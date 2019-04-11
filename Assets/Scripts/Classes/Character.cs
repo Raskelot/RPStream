@@ -152,10 +152,13 @@ public class Character
             string jsonString = File.ReadAllText(path);
             JSONObject charactersData = (JSONObject)JSON.Parse(jsonString);
 
-            for (int i = 0; i < charactersData.Count; i++)
+            //load pas en ordre, regarde si ca load dans la liste de character, il peut encore !create et sa recommancer son perso
+
+            for (int i = 0; i < charactersData["Character"].Count; i++)
             {
                 Character c = new Character();
                 c.username = charactersData["Character"][i.ToString()]["username"].Value;
+                c.ID = Convert.ToInt32(charactersData["Character"][i.ToString()]["ID"].Value);
                 c.role = charactersData["Character"][i.ToString()]["role"].Value;
                 c.prestige = Convert.ToInt32(charactersData["Character"][i.ToString()]["prestige"].Value);
                 c.level = Convert.ToInt32(charactersData["Character"][i.ToString()]["level"].Value);

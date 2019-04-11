@@ -1,7 +1,5 @@
 ﻿public class Boss
 {
-    //General
-
     //Statistics
     public int tier;
     public MapEvent type;
