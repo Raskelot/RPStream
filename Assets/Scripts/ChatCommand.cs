@@ -1007,17 +1007,59 @@ public class ChatCommand : MonoBehaviour
 
     public void DropGear(string username)
     {
-        int rng = UnityEngine.Random.Range(0, 1);
-
-        if (rng < 2)
+        int dropChance = -1;
+        switch (cs.boss.type)
         {
-            Craft(username, "#freecraft head");
+            case MapEvent.Explore:
+                dropChance = UnityEngine.Random.Range(0, 100);
+                break;
+            case MapEvent.Hunt:
+                dropChance = UnityEngine.Random.Range(0, 50);
+                break;
+            case MapEvent.Slay:
+                dropChance = UnityEngine.Random.Range(0, 20);
+                break;
+            case MapEvent.Raid:
+                dropChance = UnityEngine.Random.Range(0, 15);
+                break;
+        }
+
+        if (dropChance == 0)
+        {
+            int slot = UnityEngine.Random.Range(0, 8);
+            switch (slot)
+            {
+                case 0:
+                    Craft(username, "#freecraft! head");
+                    break;
+                case 1:
+                    Craft(username, "#freecraft! chest");
+                    break;
+                case 2:
+                    Craft(username, "#freecraft! mainhand");
+                    break;
+                case 3:
+                    Craft(username, "#freecraft! offhand");
+                    break;
+                case 4:
+                    Craft(username, "#freecraft! mantle");
+                    break;
+                case 5:
+                    Craft(username, "#freecraft! belt");
+                    break;
+                case 6:
+                    Craft(username, "#freecraft! ring");
+                    break;
+                case 7:
+                    Craft(username, "#freecraft! amulet");
+                    break;
+            }
         }
     }
 
     private void Craft(string username, string message)
     {
-        if ((message.ToLower().Split(' ')[0] == "!craft" || message.ToLower().Split(' ')[0] == "#freecraft") && message.Split(' ').Length == 2)
+        if ((message.ToLower().Split(' ')[0] == "!craft" || message.ToLower().Split(' ')[0] == "#freecraft!") && message.Split(' ').Length == 2)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
             string slot = message.ToLower().Split(' ')[1];
@@ -1028,7 +1070,7 @@ public class ChatCommand : MonoBehaviour
                 tier = 10;
             }
             int cost = 1000 * tier;
-            if (message.ToLower().Split(' ')[0] == "#freecraft")
+            if (message.ToLower().Split(' ')[0] == "#freecraft!")
             {
                 cost = 0;
             }
@@ -1047,7 +1089,7 @@ public class ChatCommand : MonoBehaviour
                     c.legendaryCount++;
                 }
                 string botMessage = String.Format("{0} crafted a {1}", username, rarity);
-                if (message.ToLower().Split(' ')[0] == "#freecraft")
+                if (message.ToLower().Split(' ')[0] == "#freecraft!")
                 {
                     botMessage = String.Format("{0} looted a {1}", username, rarity);
                 }
@@ -1057,7 +1099,7 @@ public class ChatCommand : MonoBehaviour
                     case "mh":
                         currentItemValue = GetMainHandPowerValue(c);
                         craftedItemValue = (int)((float)tier * (5 + (tier - 1)) * GetRarityMultiplier(rarity));
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage += String.Format(" {0} tier {1}.", GetMainHandName(c.role), tier);
                         else
                             botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetMainHandName(c.role), tier, cost, c.gold);
@@ -1086,7 +1128,7 @@ public class ChatCommand : MonoBehaviour
                                 craftedItemValue = (int)((float)tier * (10 + (tier - 1)) * GetRarityMultiplier(rarity));
                                 break;
                         }
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage += String.Format(" {0} tier {1}.", GetOffHandName(c.role), tier);
                         else
                             botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetOffHandName(c.role), tier, cost, c.gold);
@@ -1101,7 +1143,7 @@ public class ChatCommand : MonoBehaviour
                     case "head":
                         currentItemValue = GetHeadPowerValue(c);
                         craftedItemValue = (int)((float)tier * (48 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage += String.Format(" {0} tier {1}.", GetHeadName(c.role), tier);
                         else
                             botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetHeadName(c.role), tier, cost, c.gold);
@@ -1116,7 +1158,7 @@ public class ChatCommand : MonoBehaviour
                     case "chest":
                         currentItemValue = GetChestPowerValue(c);
                         craftedItemValue = (int)((float)tier * (48 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage = String.Format(" {0} tier {1}.", GetChestName(c.role), tier);
                         else
                             botMessage += String.Format(" {0} tier {1} for {2} gold and has {3} gold left.", GetChestName(c.role), tier, cost, c.gold);
@@ -1131,7 +1173,7 @@ public class ChatCommand : MonoBehaviour
                     case "mantle":
                         currentItemValue = GetMantlePowerValue(c);
                         craftedItemValue = (int)((float)tier * (13 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage = String.Format(" {0} tier Mantle.", tier);
                         else
                             botMessage += String.Format(" Mantle tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);
@@ -1147,7 +1189,7 @@ public class ChatCommand : MonoBehaviour
                     case "amulet":
                         currentItemValue = GetAmuletPowerValue(c);
                         craftedItemValue = (int)((float)tier * (38 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage += String.Format(" {0} tier Amulet.", tier);
                         else
                             botMessage += String.Format(" Amulet tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);
@@ -1163,7 +1205,7 @@ public class ChatCommand : MonoBehaviour
                     case "ring":
                         currentItemValue = GetRingPowerValue(c);
                         craftedItemValue = (int)((float)tier * (13 + (tier - 1) * 2) * GetRarityMultiplier(rarity));
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage += String.Format(" {0} tier Mantle.", tier);
                         else
                             botMessage += String.Format(" Ring tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);
@@ -1179,7 +1221,7 @@ public class ChatCommand : MonoBehaviour
                     case "belt":
                         currentItemValue = GetBeltPowerValue(c);
                         craftedItemValue = (int)((float)tier * (1 + (tier - 1)) * GetRarityMultiplier(rarity));
-                        if (message.ToLower().Split(' ')[0] == "#freecraft")
+                        if (message.ToLower().Split(' ')[0] == "#freecraft!")
                             botMessage += String.Format(" {0} tier Belt.", tier);
                         else
                             botMessage += String.Format(" Belt tier {0} for {1} gold and has {2} gold left.", tier, cost, c.gold);

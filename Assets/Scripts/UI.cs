@@ -245,7 +245,7 @@ public class UI : MonoBehaviour
                     barNumber++;
                 }
 
-                GameObject.Find("DPS Meter").GetComponent<RectTransform>().anchoredPosition = new Vector2(-500, 250);
+                GameObject.Find("DPS Meter").GetComponent<RectTransform>().anchoredPosition = new Vector2(521, 220);
             }
         }
         else
@@ -504,7 +504,7 @@ public class UI : MonoBehaviour
         int spawnDpsBar = 0;
         foreach (Character c in GameData.characterJoined)
         {
-            if (spawnDpsBar < 10)
+            if (spawnDpsBar < 15)
             {
                 GameObject bar = Instantiate(dpsBarPrefabs, Vector2.zero, Quaternion.identity);
                 dpsBar.Add(bar);

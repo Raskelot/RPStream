@@ -24,7 +24,7 @@ static public class GameData
     static public float pvpDuelTimer = 30f;
     static public bool showMap = false;
     static public bool showCombatFrame = false;
-    static public float mapTimer = 30f;
+    static public float mapTimer = 600f;
     static public bool isCombatDebug = true;
     static public bool showDpsMeter = true;
 }
