@@ -394,8 +394,8 @@ public class ChatCommand : MonoBehaviour
             Character c = GameData.character[GetCharacterIndex(username)];
             if (c.antiSpamTimer <= 0f)
             {
-                SendTwitchMessage(GetInspectText(c));
-                SendTwitchMessage(GetInventoryText(c));
+                SendTwitchMessage(GetInspectText(username, c));
+                SendTwitchMessage(GetInventoryText(username, c));
                 c.antiSpamTimer = GameData.spamTimer;
             }
         }
@@ -411,8 +411,8 @@ public class ChatCommand : MonoBehaviour
                     if (t.username != "")
                     {
                         c.antiSpamTimer = GameData.spamTimer;
-                        SendTwitchMessage(GetInspectText(t));
-                        SendTwitchMessage(GetInventoryText(t));
+                        SendTwitchMessage(GetInspectText(username, t));
+                        SendTwitchMessage(GetInventoryText(username, t));
                     }
                 }
             }
@@ -432,6 +432,7 @@ public class ChatCommand : MonoBehaviour
             }
         }
     }
+    
 
     private void Donate(string username, string message)
     {
@@ -606,7 +607,7 @@ public class ChatCommand : MonoBehaviour
         return -1;
     }
 
-    private string GetInspectText(Character c)
+    private string GetInspectText(string username, Character c)
     {
         int totalHP = (c.level * 20) + GetHeadPowerValue(c) + GetChestPowerValue(c);
         int totalPower = (c.level * 5) + GetMainHandPowerValue(c);
@@ -644,11 +645,11 @@ public class ChatCommand : MonoBehaviour
                 break;
         }
         string prestige = c.prestige > 0 ? " " + (c.prestige > 1 ? c.prestige.ToString() + "*" : " *") : "";
-        return string.Format("/w {0} {0}{1} {13}, Lvl: {2} {3} has {4} HP, {5} Power, {6} ({7}%) Critical, {8} ({9}%) Evasion, {10} Gold, {11} Streamstone and {12}% experiences.",
-                            c.username, prestige, c.level, c.role, totalHP, totalPower, totalCritical, GetPercentStats(totalCritical).ToString(), totalEvasion, GetPercentStats(totalEvasion).ToString(), c.gold, c.streamstone, c.experience, c.nickname);
+        return string.Format("/w {13} {0}{1} {13}, Lvl: {2} {3} has {4} HP, {5} Power, {6} ({7}%) Critical, {8} ({9}%) Evasion, {10} Gold, {11} Streamstone and {12}% experiences.",
+                            c.username, prestige, c.level, c.role, totalHP, totalPower, totalCritical, GetPercentStats(totalCritical).ToString(), totalEvasion, GetPercentStats(totalEvasion).ToString(), c.gold, c.streamstone, c.experience, c.nickname, username);
     }
 
-    private string GetInventoryText(Character c)
+    private string GetInventoryText(string username, Character c)
     {
         string offHandValue = "";
         switch (c.role)
@@ -686,13 +687,13 @@ public class ChatCommand : MonoBehaviour
                 break;
         }
 
-        return string.Format("/w {0} {0}{1} {28}, has {2} {3}{4} tier {5} Power: {6}, {7} {8}{9} tier {10} {11}, {12} {13}{14} tier {15} HP: {16}, {17} {18}{19} tier {20} HP: {21}, {22} {23}{24} tier {25}.",
+        return string.Format("/w {26} {0}{1} {28}, has {2} {3}{4} tier {5} Power: {6}, {7} {8}{9} tier {10} {11}, {12} {13}{14} tier {15} HP: {16}, {17} {18}{19} tier {20} HP: {21}, {22} {23}{24} tier {25}.",
                             c.username, c.prestige > 0 ? " *" : "", c.mainHandSlot[0], GetMainHandName(c.role), Convert.ToInt32(c.mainHandSlot[2]) > 0 ? " (+" + c.mainHandSlot[2] + ")" : "", c.mainHandSlot[1], GetMainHandPowerValue(c),
                             c.offHandSlot[0], GetOffHandName(c.role), Convert.ToInt32(c.offHandSlot[2]) > 0 ? " (+" + c.offHandSlot[2] + ")" : "", c.offHandSlot[1], offHandValue,
                             c.headSlot[0], GetHeadName(c.role), Convert.ToInt32(c.headSlot[2]) > 0 ? " (+" + c.headSlot[2] + ")" : "", c.headSlot[1], GetHeadPowerValue(c),
                             c.chestSlot[0], GetChestName(c.role), Convert.ToInt32(c.chestSlot[2]) > 0 ? " (+" + c.chestSlot[2] + ")" : "", c.chestSlot[1], GetChestPowerValue(c),
                             c.accessorySlot[0], c.accessorySlot[3], Convert.ToInt32(c.accessorySlot[2]) > 0 ? " (+" + c.accessorySlot[2] + ")" : "", c.accessorySlot[1], c.accessorySlot[3], accessory,
-                            c.nickname);
+                            c.nickname, username);
     }
 
     private void Duel(string username, string message)

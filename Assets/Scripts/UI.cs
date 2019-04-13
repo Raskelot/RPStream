@@ -504,7 +504,7 @@ public class UI : MonoBehaviour
         int spawnDpsBar = 0;
         foreach (Character c in GameData.characterJoined)
         {
-            if (spawnDpsBar < 15)
+            if (spawnDpsBar < 5)
             {
                 GameObject bar = Instantiate(dpsBarPrefabs, Vector2.zero, Quaternion.identity);
                 dpsBar.Add(bar);

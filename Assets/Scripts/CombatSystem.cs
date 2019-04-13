@@ -297,11 +297,11 @@ public class CombatSystem : MonoBehaviour
                 cc.SendTwitchMessage(String.Format("/w {3} Defeat in {0} (X:{1}, Y:{2})! You dealt {3} ({4})% damage.", 
                     GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y], (int)GameData.mapPosition.x, (int)GameData.mapPosition.y, c.username, c.damageDealt, (c.damageDealt / boss.maxHP) * 100));
             }
-            cc.SendTwitchMessage("Defeat!");
             GameData.showCombatFrame = false;
             GameData.showDpsMeter = false;
             GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y] = MapEvent.Failure;
             GameData.characterJoined.Clear();
+            cc.SendTwitchMessage(String.Format("Defeat!"));
             return true;
         }
 
@@ -324,12 +324,12 @@ public class CombatSystem : MonoBehaviour
                     boss.gold, boss.experience * (GetAverageLevel() / c.level), boss.streamstone, c.username, c.damageDealt, (int)((float)(c.damageDealt / boss.maxHP) * 100)));
                 cc.DropGear(c.username);
             }
-            cc.SendTwitchMessage("Victory!");
             isFighting = false;
             GameData.showCombatFrame = false;
             GameData.showDpsMeter = false;
             GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y] = MapEvent.Success;
             GameData.characterJoined.Clear();
+            cc.SendTwitchMessage(String.Format("Victory!"));
             return true;
         }
         return false;
