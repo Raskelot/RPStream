@@ -266,7 +266,7 @@ public class CombatSystem : MonoBehaviour
                 }
                 break;
             case MapEvent.Raid:
-                boss.gold = 200 * boss.tier;
+                boss.gold = 2000;
                 boss.streamstone = UnityEngine.Random.Range(1, 4);
                 break;
         }

@@ -101,7 +101,7 @@ public class ChatCommand : MonoBehaviour
                         SendTwitchMessage(String.Format("{0} has leveled up!", c.username));
                     }
 
-                    /*if (c.pvpDuelTimer <= 0)
+                    /*if (c.pvpDuelTimer <= 0)MAKE BUGS
                     {
                         GameData.character[GetCharacterIndex(c.username)].pvpDuelTimer = 0;
                         GameData.character[GetCharacterIndex(c.username)].pvpDuel[0] = "";
@@ -130,7 +130,7 @@ public class ChatCommand : MonoBehaviour
 
             if (GameData.mapTimer <= 0 && GameData.characterJoined.Count > 0)
             {
-                //GameData.characterJoined.Add(GameData.character[GetCharacterIndex(channelName)]);
+                GameData.characterJoined.Add(GameData.character[GetCharacterIndex(channelName)]);
                 GameData.mapTimer = 600f;
 
                 if (GameData.voteNorth != null && GameData.voteEast != null && GameData.voteSouth != null && GameData.voteWest != null)
@@ -334,7 +334,7 @@ public class ChatCommand : MonoBehaviour
                 splitPoint = message.IndexOf(":", 1);
                 message = message.Substring(splitPoint + 1);
 
-                Debug.Log(String.Format("{0}: {1}", chatName, message));
+                //Debug.Log(String.Format("{0}: {1}", chatName, message));
 
                 Commands(chatName, message);
             }
@@ -354,7 +354,7 @@ public class ChatCommand : MonoBehaviour
             Nickname(chatName, message);
             MapDirection(chatName, message);
             //Prestige(chatName, message);
-            //Duel(chatName, message);
+            //Duel(chatName, message);//if player is online only - 60s to accept
             //Accept(chatName, message);
             //Decline(chatName, message);
 
@@ -880,7 +880,7 @@ public class ChatCommand : MonoBehaviour
 
     private void Wizard(string username, string message)
     {
-        if ((message.ToLower() == "!wizard" || message.ToLower() == "!magician") && message.Split(' ').Length == 1)
+        if ((message.ToLower() == "!wizard" || message.ToLower() == "!magicien" || message.ToLower() == "!harry") && message.Split(' ').Length == 1)
         {
             Character c = GameData.character[GetCharacterIndex(username)];
 

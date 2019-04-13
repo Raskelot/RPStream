@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\ChatCommand.cs" />
+    <Compile Include="Assets\Scripts\Classes\Badges.cs" />
     <Compile Include="Assets\Scripts\Classes\Boss.cs" />
     <Compile Include="Assets\Scripts\Classes\Character.cs" />
     <Compile Include="Assets\Scripts\Classes\CharacterToJson.cs" />
