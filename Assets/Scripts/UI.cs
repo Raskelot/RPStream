@@ -143,7 +143,7 @@ public class UI : MonoBehaviour
             characterCount.text = GameData.characterJoined.Count.ToString();
         }
 
-        locationTitle.text = "(" + (int)GameData.mapPosition.x + ", " + (int)GameData.mapPosition.y + ") " + GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y].ToString();
+        locationTitle.text = /*"(" + (int)GameData.mapPosition.x + ", " + (int)GameData.mapPosition.y + ") " + */GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y].ToString();
 
         //Combat Frame
         if (cs.isFighting)

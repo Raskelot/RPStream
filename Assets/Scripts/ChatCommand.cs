@@ -1266,7 +1266,7 @@ public class ChatCommand : MonoBehaviour
                     if (!c.isTraining)
                     {
                         GameData.characterJoined.Add(c);
-                        SendTwitchMessage(String.Format("/w {0} You just joined the next event.", c.username));
+                        SendTwitchMessage(String.Format(" {0} has joined the next event as {1}.", c.username, c.role));
                     }
                     else
                     {
