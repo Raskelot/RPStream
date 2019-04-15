@@ -8,6 +8,7 @@ static public class GameData
     static public List<string> viewer = new List<string>();
     static public List<Character> characterJoined = new List<Character>();
     static public MapEvent[,] map = new MapEvent[7,7];
+    static public bool[] canVote = new bool[4];
     static public List<string> voteNorth = new List<string>();
     static public List<string> voteEast = new List<string>();
     static public List<string> voteSouth = new List<string>();

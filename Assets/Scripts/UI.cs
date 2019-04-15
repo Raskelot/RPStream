@@ -143,7 +143,16 @@ public class UI : MonoBehaviour
             characterCount.text = GameData.characterJoined.Count.ToString();
         }
 
-        locationTitle.text = /*"(" + (int)GameData.mapPosition.x + ", " + (int)GameData.mapPosition.y + ") " + */GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y].ToString();
+        switch (GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y].ToString())
+        {
+            case "Explore":
+            case "Hunt":
+            case "Slay":
+            case "Raid":
+            case "City":
+                locationTitle.text = /*"(" + (int)GameData.mapPosition.x + ", " + (int)GameData.mapPosition.y + ") " + */GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y].ToString();
+                break;
+        }
 
         //Combat Frame
         if (cs.isFighting)
@@ -191,6 +200,13 @@ public class UI : MonoBehaviour
                 priestsMaxHP += c.stats.maxHP;
             }
 
+            knightHpBar.transform.parent.GetComponentInChildren<Text>().text = "Knights (x" + KnightAlive().Count + ")";
+            warriorHpBar.transform.parent.GetComponentInChildren<Text>().text = "Warriors (x" + WarriorAlive().Count + ")";
+            thiefHpBar.transform.parent.GetComponentInChildren<Text>().text = "Thieves (x" + ThiefAlive().Count + ")";
+            archerHpBar.transform.parent.GetComponentInChildren<Text>().text = "Archers (x" + ArcherAlive().Count + ")";
+            wizardHpBar.transform.parent.GetComponentInChildren<Text>().text = "Wizards (x" + WizardAlive().Count + ")";
+            priestHpBar.transform.parent.GetComponentInChildren<Text>().text = "Priests (x" + PriestAlive().Count + ")";
+
             bossHpBar.fillAmount = (float)cs.boss.currentHP / (float)cs.boss.maxHP;
             knightHpBar.fillAmount = (float)knightsCurrentHP / (float)knightsMaxHP;
             warriorHpBar.fillAmount = (float)warriorsCurrentHP / (float)warriorsMaxHP;
@@ -209,40 +225,45 @@ public class UI : MonoBehaviour
                 int highestDPS = topDPS[0].damageDealt;
                 foreach (Character c in topDPS)
                 {
-                    dpsBar[barNumber].transform.GetChild(0).GetComponent<Text>().text = c.username;
-                    dpsBar[barNumber].transform.GetChild(1).GetComponent<Text>().text = c.damageDealt.ToString();
-
-                    if (highestDPS > 0)
+                    if (barNumber < 5)
                     {
-                        dpsBar[barNumber].GetComponent<Image>().fillAmount = (float)c.damageDealt / (float)highestDPS;
+                        dpsBar[barNumber].transform.GetChild(0).GetComponent<Text>().text = c.username;
+                        dpsBar[barNumber].transform.GetChild(1).GetComponent<Text>().text = c.damageDealt.ToString();
+
+                        if (highestDPS > 0)
+                        {
+                            dpsBar[barNumber].GetComponent<Image>().fillAmount = (float)c.damageDealt / (float)highestDPS;
+                        }
+                        else
+                        {
+                            dpsBar[barNumber].GetComponent<Image>().fillAmount = 1;
+                        }
+
+                        switch (c.role)
+                        {
+                            case "Knight":
+                                dpsBar[barNumber].GetComponent<Image>().color = new Color(0, 0.5f, 1);
+                                break;
+                            case "Warrior":
+                                dpsBar[barNumber].GetComponent<Image>().color = new Color(1, 0.5f, 0);
+                                break;
+                            case "Thief":
+                                dpsBar[barNumber].GetComponent<Image>().color = new Color(1, 0.75f, 0);
+                                break;
+                            case "Wizard":
+                                dpsBar[barNumber].GetComponent<Image>().color = new Color(0.5f, 0, 1);
+                                break;
+                            case "Archer":
+                                dpsBar[barNumber].GetComponent<Image>().color = new Color(0.5f, 1, 0);
+                                break;
+                            case "Priest":
+                                dpsBar[barNumber].GetComponent<Image>().color = new Color(1, 0, 1);
+                                break;
+                        }
+                        barNumber++;
                     }
                     else
-                    {
-                        dpsBar[barNumber].GetComponent<Image>().fillAmount = 1;
-                    }
-
-                    switch (c.role)
-                    {
-                        case "Knight":
-                            dpsBar[barNumber].GetComponent<Image>().color = new Color(0, 0.5f, 1);
-                            break;
-                        case "Warrior":
-                            dpsBar[barNumber].GetComponent<Image>().color = new Color(1, 0.5f, 0);
-                            break;
-                        case "Thief":
-                            dpsBar[barNumber].GetComponent<Image>().color = new Color(1, 0.75f, 0);
-                            break;
-                        case "Wizard":
-                            dpsBar[barNumber].GetComponent<Image>().color = new Color(0.5f, 0, 1);
-                            break;
-                        case "Archer":
-                            dpsBar[barNumber].GetComponent<Image>().color = new Color(0.5f, 1, 0);
-                            break;
-                        case "Priest":
-                            dpsBar[barNumber].GetComponent<Image>().color = new Color(1, 0, 1);
-                            break;
-                    }
-                    barNumber++;
+                        break;
                 }
 
                 GameObject.Find("DPS Meter").GetComponent<RectTransform>().anchoredPosition = new Vector2(521, 220);
@@ -257,6 +278,7 @@ public class UI : MonoBehaviour
 
     private void ShowCompass()
     {
+        int resetCount = 0;
         for (int i = 0; i < 4; i++)
         {
             compass[i].GetComponent<Text>().text = "";
@@ -271,7 +293,18 @@ public class UI : MonoBehaviour
                     GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y + 1] != MapEvent.Failure)
                 {
                     compass[0].GetComponent<Text>().text = "N (" + GameData.voteNorth.Count.ToString() + ")";
+                    GameData.canVote[0] = true;
                 }
+                else
+                {
+                    GameData.canVote[0] = false;
+                    resetCount++;
+                }
+            }
+            else
+            {
+                GameData.canVote[0] = false;
+                resetCount++;
             }
         }
 
@@ -284,7 +317,18 @@ public class UI : MonoBehaviour
                     GameData.map[(int)GameData.mapPosition.x + 1, (int)GameData.mapPosition.y] != MapEvent.Failure)
                 {
                     compass[1].GetComponent<Text>().text = "E (" + GameData.voteEast.Count.ToString() + ")";
+                    GameData.canVote[1] = true;
                 }
+                else
+                {
+                    GameData.canVote[1] = false;
+                    resetCount++;
+                }
+            }
+            else
+            {
+                GameData.canVote[1] = false;
+                resetCount++;
             }
         }
 
@@ -297,7 +341,18 @@ public class UI : MonoBehaviour
                     GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y - 1] != MapEvent.Failure)
                 {
                     compass[2].GetComponent<Text>().text = "S (" + GameData.voteSouth.Count.ToString() + ")";
+                    GameData.canVote[2] = true;
                 }
+                else
+                {
+                    GameData.canVote[2] = false;
+                    resetCount++;
+                }
+            }
+            else
+            {
+                GameData.canVote[2] = false;
+                resetCount++;
             }
         }
 
@@ -310,8 +365,25 @@ public class UI : MonoBehaviour
                     GameData.map[(int)GameData.mapPosition.x - 1, (int)GameData.mapPosition.y] != MapEvent.Failure)
                 {
                     compass[3].GetComponent<Text>().text = "W (" + GameData.voteWest.Count.ToString() + ")";
+                    GameData.canVote[3] = true;
+                }
+                else
+                {
+                    GameData.canVote[3] = false;
+                    resetCount++;
                 }
             }
+            else
+            {
+                GameData.canVote[3] = false;
+                resetCount++;
+            }
+        }
+
+        if (resetCount == 4)
+        {
+            GameObject.Find("MiniMap").GetComponent<UI>().InitialMap();
+            GameObject.Find(">MainObject<").GetComponent<ChatCommand>().SendTwitchMessage(String.Format("You are now in The City (3, 3). !craft and !forge are now available."));
         }
     }
 
@@ -510,6 +582,11 @@ public class UI : MonoBehaviour
                 dpsBar.Add(bar);
                 bar.transform.parent = GameObject.Find("DPS Meter").gameObject.transform;
                 c.damageDealt = 0;
+                spawnDpsBar++;
+            }
+            else
+            {
+                break;
             }
         }
     }
@@ -527,7 +604,7 @@ public class UI : MonoBehaviour
 
     private void SelectRandomPattern()
     {
-        int rng = UnityEngine.Random.Range(1, 3);
+        int rng = UnityEngine.Random.Range(1, 4);
 
         switch (rng)
         {
@@ -536,6 +613,9 @@ public class UI : MonoBehaviour
                 break;
             case 2:
                 Pattern2();
+                break;
+            case 3:
+                Pattern3();
                 break;
         }
         GameData.mapPosition.x = 3;
@@ -554,7 +634,6 @@ public class UI : MonoBehaviour
         SetTileSprite(3, 2, explore);
         SetTileSprite(5, 2, explore);
         SetTileSprite(0, 3, raid);
-        SetTileSprite(2, 3, explore);
         SetTileSprite(4, 3, explore);
         SetTileSprite(5, 3, explore);
         SetTileSprite(6, 3, hunt);
@@ -591,11 +670,28 @@ public class UI : MonoBehaviour
         SetTileSprite(5, 2, hunt);
         SetTileSprite(0, 1, slay);
         SetTileSprite(1, 1, explore);
-        SetTileSprite(2, 1, hunt);
         SetTileSprite(3, 1, hunt);
         SetTileSprite(4, 1, explore);
         SetTileSprite(1, 0, slay);
     }
 
+    private void Pattern3()
+    {
+        SetTileSprite(3, 3, city);
+        SetTileSprite(2, 5, slay);
+        SetTileSprite(4, 5, slay);
+        SetTileSprite(1, 4, raid);
+        SetTileSprite(2, 4, hunt);
+        SetTileSprite(4, 4, hunt);
+        SetTileSprite(5, 4, explore);
+        SetTileSprite(2, 3, explore);
+        SetTileSprite(4, 3, explore);
+        SetTileSprite(1, 2, slay);
+        SetTileSprite(2, 2, explore);
+        SetTileSprite(4, 2, explore);
+        SetTileSprite(5, 2, slay);
+        SetTileSprite(2, 1, hunt);
+        SetTileSprite(4, 1, hunt);
+    }
 
 }

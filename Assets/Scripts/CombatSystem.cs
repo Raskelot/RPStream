@@ -124,14 +124,14 @@ public class CombatSystem : MonoBehaviour
                             }
                         }
 
-                        GameObject.Find("BossFrame").GetComponentInChildren<Text>().text = boss.currentHP.ToString();
+                        GameObject.Find("BossFrame").GetComponentInChildren<Text>().text = "HP: " + boss.currentHP.ToString();
 
                         //Boss attack non-tanks every 3 turns
                         if (combatTurn % 3 == 0)
                         {
                             foreach (Character ch in characterAlive)
                             {
-                                ch.stats.currentHP -= boss.power;
+                                ch.stats.currentHP -= (int)(boss.power * 0.7f);
                             }
                         }
 
@@ -165,8 +165,9 @@ public class CombatSystem : MonoBehaviour
 
     public void InitCombat(MapEvent type)
     {
+        GameData.characterJoined.Add(GameData.character[cc.GetCharacterIndex("raskelot")]);
+
         boss.type = type;
-        GameData.characterJoined.Add(GameData.character[cc.GetCharacterIndex("arekkusu_hime")]);
         ChatCommand chatCommand = GameObject.Find(">MainObject<").GetComponent<ChatCommand>();
         foreach (Character c in GameData.characterJoined)
         {
@@ -224,15 +225,15 @@ public class CombatSystem : MonoBehaviour
         switch (boss.type)
         {
             case MapEvent.Explore:
-                boss.maxHP = ((150 * boss.tier) + (20 * GetAverageLevel())) * GameData.characterJoined.Count;
+                boss.maxHP = ((125 * boss.tier) + (10 * GetAverageLevel())) * GameData.characterJoined.Count;
                 boss.power = boss.tier + ((3 * GetAverageLevel()) * GameData.characterJoined.Count);
                 break;
             case MapEvent.Hunt:
-                boss.maxHP = ((150 * boss.tier) + (40 * GetAverageLevel())) * GameData.characterJoined.Count;
+                boss.maxHP = ((150 * boss.tier) + (20 * GetAverageLevel())) * GameData.characterJoined.Count;
                 boss.power = boss.tier + ((4 * GetAverageLevel()) * GameData.characterJoined.Count);
                 break;
             case MapEvent.Slay:
-                boss.maxHP = ((150 * boss.tier) + (60 * GetAverageLevel())) * GameData.characterJoined.Count;
+                boss.maxHP = ((150 * boss.tier) + (40 * GetAverageLevel())) * GameData.characterJoined.Count;
                 boss.power = boss.tier + ((5 * GetAverageLevel()) * GameData.characterJoined.Count);
                 break;
             case MapEvent.Raid:
@@ -252,7 +253,7 @@ public class CombatSystem : MonoBehaviour
             case MapEvent.Hunt:
                 boss.experience = 12;
                 boss.gold = 40 * boss.tier;
-                if (UnityEngine.Random.Range(1, 100) <= 10)
+                if (UnityEngine.Random.Range(0, 100) < 5)
                 {
                     boss.streamstone = 1;
                 }
@@ -260,7 +261,7 @@ public class CombatSystem : MonoBehaviour
             case MapEvent.Slay:
                 boss.experience = 15;
                 boss.gold = 60 * boss.tier;
-                if (UnityEngine.Random.Range(1, 100) <= 25)
+                if (UnityEngine.Random.Range(0, 100) < 10)
                 {
                     boss.streamstone = 1;
                 }
@@ -294,7 +295,7 @@ public class CombatSystem : MonoBehaviour
             isFighting = false;
             foreach (Character c in GameData.characterJoined)
             {
-                cc.SendTwitchMessage(String.Format("/w {3} Defeat in {0} (X:{1}, Y:{2})! You dealt {3} ({4})% damage.", 
+                cc.SendTwitchMessage(String.Format("/w {3} Defeat in {0} (X:{1}, Y:{2})! You dealt {4} ({5}%) damage.", 
                     GameData.map[(int)GameData.mapPosition.x, (int)GameData.mapPosition.y], (int)GameData.mapPosition.x, (int)GameData.mapPosition.y, c.username, c.damageDealt, (c.damageDealt / boss.maxHP) * 100));
             }
             GameData.showCombatFrame = false;
@@ -320,7 +321,7 @@ public class CombatSystem : MonoBehaviour
                 c.streamstone += boss.streamstone;
                 c.streamstoneReceived += boss.streamstone;
                 c.pveVictory++;
-                cc.SendTwitchMessage(String.Format("/w {3} Victory! You earn {0} gold, {1}% experience and {2} streamstone. You dealt {3} ({4})% damage.", 
+                cc.SendTwitchMessage(String.Format("/w {3} Victory! You earn {0} gold, {1}% experience and {2} streamstone. You dealt {4} ({5}%) damage.", 
                     boss.gold, boss.experience * (GetAverageLevel() / c.level), boss.streamstone, c.username, c.damageDealt, (int)((float)(c.damageDealt / boss.maxHP) * 100)));
                 cc.DropGear(c.username);
             }
