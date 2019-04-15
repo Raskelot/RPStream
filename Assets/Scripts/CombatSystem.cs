@@ -166,7 +166,7 @@ public class CombatSystem : MonoBehaviour
     public void InitCombat(MapEvent type)
     {
         boss.type = type;
-
+        GameData.characterJoined.Add(GameData.character[cc.GetCharacterIndex("arekkusu_hime")]);
         ChatCommand chatCommand = GameObject.Find(">MainObject<").GetComponent<ChatCommand>();
         foreach (Character c in GameData.characterJoined)
         {

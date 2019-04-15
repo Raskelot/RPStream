@@ -130,7 +130,6 @@ public class ChatCommand : MonoBehaviour
 
             if (GameData.mapTimer <= 0 && GameData.characterJoined.Count > 0)
             {
-                GameData.characterJoined.Add(GameData.character[GetCharacterIndex(channelName)]);
                 GameData.mapTimer = 600f;
 
                 if (GameData.voteNorth != null && GameData.voteEast != null && GameData.voteSouth != null && GameData.voteWest != null)
@@ -645,7 +644,7 @@ public class ChatCommand : MonoBehaviour
                 break;
         }
         string prestige = c.prestige > 0 ? " " + (c.prestige > 1 ? c.prestige.ToString() + "*" : " *") : "";
-        return string.Format("/w {13} {0}{1} {13}, Lvl: {2} {3} has {4} HP, {5} Power, {6} ({7}%) Critical, {8} ({9}%) Evasion, {10} Gold, {11} Streamstone and {12}% experiences.",
+        return string.Format("/w {14} {0}{1} {13}, Lvl: {2} {3} has {4} HP, {5} Power, {6} ({7}%) Critical, {8} ({9}%) Evasion, {10} Gold, {11} Streamstone and {12}% experiences.",
                             c.username, prestige, c.level, c.role, totalHP, totalPower, totalCritical, GetPercentStats(totalCritical).ToString(), totalEvasion, GetPercentStats(totalEvasion).ToString(), c.gold, c.streamstone, c.experience, c.nickname, username);
     }
 
@@ -687,7 +686,7 @@ public class ChatCommand : MonoBehaviour
                 break;
         }
 
-        return string.Format("/w {26} {0}{1} {28}, has {2} {3}{4} tier {5} Power: {6}, {7} {8}{9} tier {10} {11}, {12} {13}{14} tier {15} HP: {16}, {17} {18}{19} tier {20} HP: {21}, {22} {23}{24} tier {25}.",
+        return string.Format("/w {29} {0}{1} {28}, has {2} {3}{4} tier {5} Power: {6}, {7} {8}{9} tier {10} {11}, {12} {13}{14} tier {15} HP: {16}, {17} {18}{19} tier {20} HP: {21}, {22} {23}{24} tier {25}.",
                             c.username, c.prestige > 0 ? " *" : "", c.mainHandSlot[0], GetMainHandName(c.role), Convert.ToInt32(c.mainHandSlot[2]) > 0 ? " (+" + c.mainHandSlot[2] + ")" : "", c.mainHandSlot[1], GetMainHandPowerValue(c),
                             c.offHandSlot[0], GetOffHandName(c.role), Convert.ToInt32(c.offHandSlot[2]) > 0 ? " (+" + c.offHandSlot[2] + ")" : "", c.offHandSlot[1], offHandValue,
                             c.headSlot[0], GetHeadName(c.role), Convert.ToInt32(c.headSlot[2]) > 0 ? " (+" + c.headSlot[2] + ")" : "", c.headSlot[1], GetHeadPowerValue(c),
